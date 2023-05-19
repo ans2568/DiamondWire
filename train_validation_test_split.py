@@ -9,7 +9,11 @@ from sklearn.model_selection import train_test_split
 
 # 이미지 디렉토리 선택
 img_dir = 'dataset'
-whole = 'whole'
+whole = 'whole/edge_detection/edge_detection_SobelXY'
+canny = 'edge_canny_train_test_val'
+sobel = 'edge_SobelXY_train_test_val'
+scharr = 'edge_ScharrXY_train_test_val'
+laplacian = 'edge_Laplacian_train_test_val'
 train = 'train'
 test = 'test'
 val = 'val'
@@ -23,9 +27,9 @@ def make_dirs(dir, sub_dir):
     if not exists(dir_path):
         os.makedirs(dir_path)
 
-def my_train_test_split(dataset):
+def my_train_test_split(dataset, save_path):
     # files = os.listdir(dataset) 
-    files = [f for f in os.listdir(dataset) if os.path.isfile(join(dataset, f))] # 데이터들 dataset/whole/ only file
+    files = [f for f in os.listdir(dataset) if os.path.isfile(join(dataset, f))] # 데이터들 dataset/whole/original only file
     for name in files:
         file = join(dataset, name) # 이미지 파일
         label = name.split('_')[0] # high_0.bmp 파일이면 label = high
@@ -39,25 +43,26 @@ def my_train_test_split(dataset):
     for file_name in train_img:
         file = join(dataset, file_name) # 이미지 파일
         img = cv2.imread(file)
-        cv2.imwrite(join(img_dir, train, file_name) , img)
+        cv2.imwrite(join(save_path, train, file_name) , img)
     # test 3 을 val 2 test 1 로 나눔
     val_img, test_img, val_label, test_label = train_test_split(test_img, test_label, test_size=0.33, random_state=42)
     for file_name in test_img:
         file = join(dataset, file_name) # 이미지 파일
         img = cv2.imread(file)
-        cv2.imwrite(join(img_dir, test, file_name) , img)
+        cv2.imwrite(join(save_path, test, file_name) , img)
     for file_name in val_img:
         file = join(dataset, file_name) # 이미지 파일
         img = cv2.imread(file)
-        cv2.imwrite(join(img_dir, val, file_name) , img)
+        cv2.imwrite(join(save_path, val, file_name) , img)
 
 if __name__ == '__main__':
 
     # 기본 Dataset이 존재하는 디렉토리
     original_dataset_path = join(img_dir, whole)
 
-    make_dirs(img_dir, train)
-    make_dirs(img_dir, test)
-    make_dirs(img_dir, val)
+    mkdir_path = join(img_dir, sobel)
+    make_dirs(mkdir_path, train)
+    make_dirs(mkdir_path, test)
+    make_dirs(mkdir_path, val)
 
-    my_train_test_split(original_dataset_path)
+    my_train_test_split(original_dataset_path, mkdir_path)
