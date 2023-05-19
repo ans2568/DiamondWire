@@ -14,6 +14,13 @@ python train.py -b 16 -lr 0.001 -num_workers 4
 ```bash
 python test.py -b 16 -lr 0.001 -num_workers 4
 ```
+
+### Tensorboard
+
+```bash
+tensorboard --logdir='runs'
+```
+
 #### 옵션 정리
 
 - -b : batch size
