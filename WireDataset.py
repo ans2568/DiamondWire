@@ -1,21 +1,11 @@
-import os
 import cv2
-from os.path import join
-from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+from torch.utils.data import Dataset
 
 def input_transform():
     return transforms.Compose([
         transforms.ToTensor()
     ])
-
-def make_data_list(root):
-    files = os.listdir(root) # 데이터들 dataset/[type]
-    data_list = []
-    for name in files:
-        file = join(root, name) # 이미지 파일 경로
-        data_list.append(file)
-    return data_list
 
 class WireDataset(Dataset):
     def __init__(self, data_list, input_transform=None):

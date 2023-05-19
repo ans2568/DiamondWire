@@ -1,6 +1,16 @@
+import os
 import itertools
 import numpy as np
 import matplotlib.pyplot as plt
+
+def make_data_list(root):
+    files = os.listdir(root) # 데이터들 dataset/[type]
+    data_list = []
+    for name in files:
+        file = os.path.join(root, name) # 이미지 파일 경로
+        data_list.append(file)
+    return data_list
+
 def plot_confusion_matrix(mat, labels, title='Confusion Matrix', cmap=plt.cm.get_cmap('Blues'), normalize=False):
     plt.imshow(mat, interpolation='nearest', cmap=cmap)
     plt.title(title)
