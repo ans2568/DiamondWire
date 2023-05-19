@@ -37,8 +37,8 @@ class WireDataset(Dataset):
         if self.input_transform:
             img_transform = self.input_transform(img)
 
-        label = image_path.split('_')[0]
-        label = label.split('/')[-1]
+        label = image_path.split('/')[-1]
+        label = label.split('_')[0]
         if label == 'high':
             label = 0
         elif label == 'medium':
