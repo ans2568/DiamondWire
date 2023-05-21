@@ -6,16 +6,20 @@ print top1 and top5 err on test dataset
 of a model
 author baiyu
 """
-from WireDataset import WireDataset, make_data_list, input_transform
-from model.CNN import CNN
 import os
 import time
 import argparse
 
 import torch
 from torch.utils.data import DataLoader
+from sklearn.metrics import confusion_matrix
 
-from conf import settings
+from model.CNN import CNN
+from model.ensemble import EnsembleNetwork
+from model.CNN_residual import CNN_Residual
+
+from utils.util import make_data_list, save_confusion_matrix
+from WireDataset import WireDataset, input_transform
 
 if __name__ == '__main__':
     start = time.time()
@@ -23,25 +27,26 @@ if __name__ == '__main__':
     parser.add_argument('-b', type=int, default=32, help='batch size')
     parser.add_argument('-num_workers', type=int, default=8, help='torch DataLoader num_workers')
     parser.add_argument('-weights', type=str, required=True, help='the weights file you want to test')
+    parser.add_argument('-net', type=int, default=0, help='select network and dataset(0 ~ 3)')
     args = parser.parse_args()
-
-    net = CNN()
+    networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel'), EnsembleNetwork()]
+    net = networks[args.net]
     net = net.cuda()
 
-    path = os.path.join('dataset', 'test')
+    path = os.path.join('dataset', 'original_train_test_val', 'test')
 
     data_list = make_data_list(path)
     dataset = WireDataset(data_list, input_transform=input_transform())
     dataloader = DataLoader(dataset, batch_size=args.b, shuffle=True, num_workers=args.num_workers)
 
     net.load_state_dict(torch.load(args.weights))
-    print(net)
     net.eval()
 
     correct_1 = 0.0
-    correct_2 = 0.0
     total = 0
 
+    true_labels = []
+    pred_labels = []
     with torch.no_grad():
         for n_iter, (image, label) in enumerate(dataloader):
             print("iteration: {}\ttotal {} iterations".format(n_iter + 1, len(dataloader)))
@@ -50,20 +55,25 @@ if __name__ == '__main__':
             print('GPU INFO.....')
             print(torch.cuda.memory_summary(), end='')
             output = net(image)
-            _, pred = output.topk(k=min(2, output.size(1)), dim=1, largest=True, sorted=True)
+            _, pred = output.topk(k=1, dim=1, largest=True, sorted=True)
             label = label.view(label.size(0), -1).expand_as(pred)
             correct = pred.eq(label).float()
             #compute top1
             correct_1 += correct[:, :1].sum()
-            #compute top2
-            correct_2 += correct[:, :2].sum()
+            label = label.to('cpu')
+            pred = pred.to('cpu')
+            true_labels.append(label)
+            pred_labels.append(pred)
     finish = time.time()
 
+    true_labels = torch.cat(true_labels, dim=0)
+    pred_labels = torch.cat(pred_labels, dim=0)
+    conf_mat = confusion_matrix(true_labels, pred_labels)
+    save_confusion_matrix(conf_mat, ['high', 'medium', 'low'], normalize=True)
     print('GPU INFO.....')
     print(torch.cuda.memory_summary(), end='')
 
     print()
     print("Top 1 err: ", 1 - correct_1 / len(dataloader.dataset))
-    print("Top 2 err: ", 1 - correct_2 / len(dataloader.dataset))
     print("Parameter numbers: {}".format(sum(p.numel() for p in net.parameters())))
     print('testing time consumed: {:.2f}s'.format(finish - start))
