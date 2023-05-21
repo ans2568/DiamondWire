@@ -4,8 +4,6 @@
 """ train network using pytorch
 author baiyu
 """
-from WireDataset import WireDataset, make_data_list, input_transform
-from model.CNN import CNN
 import os
 import argparse
 import time
@@ -17,6 +15,13 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from conf import settings
+
+from model.CNN import CNN
+from model.ensemble import EnsembleNetwork
+from model.CNN_residual import CNN_Residual
+
+from utils.util import make_data_list
+from WireDataset import WireDataset, input_transform
 
 def train(epoch):
 
@@ -101,16 +106,19 @@ if __name__ == '__main__':
     parser.add_argument('-b', type=int, default=32, help='batch size')
     parser.add_argument('-lr', type=float, default=0.0001, help='initial learning rate')
     parser.add_argument('-num_workers', type=int, default=8, help='torch DataLoader num_workers')
+    parser.add_argument('-net', type=int, default=0, help='select network and dataset(0 ~ 3)')
     args = parser.parse_args()
     torch.multiprocessing.set_sharing_strategy('file_system')
 
-    net = CNN()
+    networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel'), EnsembleNetwork()]
+    networks_name = ['origin_CNN', 'canny_CNN_residual', 'sobel_CNN_residual', 'Ensemble']
+    net = networks[args.net]
     net = net.cuda()
-    
+    net_name = networks_name[args.net]
     # 경로 선택 dataset/train
-    train_path = os.path.join('dataset', 'train')
+    train_path = os.path.join('dataset', 'original_train_test_val', 'train')
     # 경로 선택 dataset/val
-    val_path = os.path.join('dataset', 'val')
+    val_path = os.path.join('dataset', 'original_train_test_val', 'val')
 
     train_data_list = make_data_list(train_path)
     train_dataset = WireDataset(train_data_list, input_transform=input_transform())
@@ -123,7 +131,7 @@ if __name__ == '__main__':
     loss_function = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
 
-    checkpoint_path = os.path.join(settings.CHECKPOINT_PATH, settings.TIME_NOW)
+    checkpoint_path = os.path.join(settings.CHECKPOINT_PATH, net_name, settings.TIME_NOW)
 
     #use tensorboard
     if not os.path.exists(settings.LOG_DIR):
@@ -132,7 +140,7 @@ if __name__ == '__main__':
     #since tensorboard can't overwrite old values
     #so the only way is to create a new tensorboard log
     writer = SummaryWriter(log_dir=os.path.join(
-            settings.LOG_DIR, settings.TIME_NOW))
+            settings.LOG_DIR, net_name, settings.TIME_NOW))
     input_tensor = torch.Tensor(1, 1, 426, 200)
     input_tensor = input_tensor.cuda()
     writer.add_graph(net, input_tensor)
