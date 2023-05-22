@@ -26,7 +26,7 @@ python train.py -net 1
 python train.py -net 2
 ```
 
-- Ensemble Network (1+2+3)
+4. Ensemble Network (1+2+3)
 
 ```bash
 python train.py -net 3 -model path/to/checkpoint/100-regular.pth -model2 path/to/checkpoint/100-regular.pth -model3 path/to/checkpoint/100-regular.pth
@@ -52,7 +52,7 @@ python test.py -net 1 -weights path/to/checkpoint/100-regular.pth
 python test.py -net 2 -weights path/to/checkpoint/100-regular.pth
 ```
 
-- Ensemble Network (1+2+3)
+4. Ensemble Network (1+2+3)
 
 ```bash
 python test.py -net 3 -weights path/to/checkpoint/100-regular.pth -model path/to/checkpoint/100-regular.pth -model2 path/to/checkpoint/100-regular.pth -model3 path/to/checkpoint/100-regular.pth
