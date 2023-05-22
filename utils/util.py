@@ -1,5 +1,6 @@
 import os
 import cv2
+import csv
 import torch
 import itertools
 import numpy as np
@@ -112,3 +113,17 @@ def save_confusion_matrix(mat, labels, title='Confusion Matrix', cmap=plt.cm.get
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.savefig(title + '.png')
+
+def save_csv(batch_size, origin=None, canny=None, sobel=None, ensemble=None, accuracy=None, parameters=None, elapsed_time=None):
+    csv_file = 'output_log.csv'
+    column = ['batch_size', 'origin', 'canny', 'sobel', 'ensemble', 'accuracy', 'parameters', 'elapsed_time']
+    row_data = [batch_size, origin, canny, sobel, ensemble, accuracy, parameters, elapsed_time]
+    if os.path.isfile(csv_file):
+        with open(csv_file, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(row_data)
+    else:
+        with open(csv_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(column)
+            writer.writerow(row_data)

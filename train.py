@@ -1,9 +1,6 @@
 # train.py
 #!/usr/bin/env	python3
 
-""" train network using pytorch
-author baiyu
-"""
 import os
 import sys
 import time
@@ -108,17 +105,17 @@ if __name__ == '__main__':
     parser.add_argument('-lr', type=float, default=0.0001, help='initial learning rate')
     parser.add_argument('-num_workers', type=int, default=8, help='torch DataLoader num_workers')
     parser.add_argument('-net', type=int, default=0, help='select network and dataset(0 ~ 3)')
+    parser.add_argument('-model', type=str, help='the first model\'s weights file to train Ensemble')
+    parser.add_argument('-model2', type=str, help='the second model\'s weights file to train Ensemble')
+    parser.add_argument('-model3', type=str, help='the third model\'s weights file to train Ensemble')
     args = parser.parse_args()
     torch.multiprocessing.set_sharing_strategy('file_system')
 
-    networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel'), EnsembleNetwork()]
+    networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel')]
     networks_name = ['origin_CNN', 'canny_CNN_residual', 'sobel_CNN_residual', 'Ensemble']
     if args.net >= 0 and args.net < 3:
         net = networks[args.net]
     elif args.net == 3:
-        parser.add_argument('-model', type=str, required=True, help='the first model\'s weights file to train Ensemble')
-        parser.add_argument('-model2', type=str, required=True, help='the second model\'s weights file to train Ensemble')
-        parser.add_argument('-model3', type=str, required=True, help='the third model\'s weights file to train Ensemble')
         net = EnsembleNetwork(args.model, args.model2, args.model3)
     else:
         print('Could not find Model. Please select model between 0 and 3')

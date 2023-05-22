@@ -1,11 +1,6 @@
 #test.py
 #!/usr/bin/env python3
 
-""" test neuron network performace
-print top1 and top5 err on test dataset
-of a model
-author baiyu
-"""
 import os
 import sys
 import time
@@ -19,8 +14,8 @@ from model.CNN import CNN
 from model.ensemble import EnsembleNetwork
 from model.CNN_residual import CNN_Residual
 
-from utils.util import make_data_list, save_confusion_matrix
 from WireDataset import WireDataset, input_transform
+from utils.util import make_data_list, save_confusion_matrix, save_csv
 
 if __name__ == '__main__':
     start = time.time()
@@ -29,14 +24,15 @@ if __name__ == '__main__':
     parser.add_argument('-num_workers', type=int, default=8, help='torch DataLoader num_workers')
     parser.add_argument('-weights', type=str, required=True, help='the weights file you want to test')
     parser.add_argument('-net', type=int, default=0, help='select network and dataset(0 ~ 3)')
+    parser.add_argument('-model', type=str, help='the first model\'s weights file to train Ensemble')
+    parser.add_argument('-model2', type=str, help='the second model\'s weights file to train Ensemble')
+    parser.add_argument('-model3', type=str, help='the third model\'s weights file to train Ensemble')
     args = parser.parse_args()
-    networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel'), EnsembleNetwork()]
+
+    networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel')]
     if args.net >= 0 and args.net < 3:
         net = networks[args.net]
     elif args.net == 3:
-        parser.add_argument('-model', type=str, required=True, help='the first model\'s weights file to train Ensemble')
-        parser.add_argument('-model2', type=str, required=True, help='the second model\'s weights file to train Ensemble')
-        parser.add_argument('-model3', type=str, required=True, help='the third model\'s weights file to train Ensemble')
         net = EnsembleNetwork(args.model, args.model2, args.model3)
     else:
         print('Could not find Model. Please select model between 0 and 3')
@@ -88,6 +84,18 @@ if __name__ == '__main__':
     print(torch.cuda.memory_summary(), end='')
 
     print()
-    print("Top 1 err: ", 1 - correct_1 / len(dataloader.dataset))
-    print("Parameter numbers: {}".format(sum(p.numel() for p in net.parameters())))
-    print('testing time consumed: {:.2f}s'.format(finish - start))
+    accuracy = correct_1 / len(dataloader.dataset)
+    accuracy = round(accuracy.item()*100, 2)
+    print("Top 1 accuracy: {}%".format(accuracy))
+    parameter_num = sum(p.numel() for p in net.parameters())
+    print("Parameter numbers: {}".format(parameter_num))
+    elapsed_time = round(finish - start, 2)
+    print('testing time consumed: {}s'.format(elapsed_time))
+    if args.net == 0:
+        save_csv(args.b, origin=args.weights, accuracy=accuracy, parameters=parameter_num, elapsed_time=elapsed_time)
+    elif args.net == 1:
+        save_csv(args.b, canny=args.weights, accuracy=accuracy, parameters=parameter_num, elapsed_time=elapsed_time)
+    elif args.net == 2:
+        save_csv(args.b, sobel=args.weights, accuracy=accuracy, parameters=parameter_num, elapsed_time=elapsed_time)
+    elif args.net == 3:
+        save_csv(args.b, origin=args.model, canny=args.model2, sobel=args.model3, ensemble=args.weights, accuracy=accuracy, parameters=parameter_num, elapsed_time=elapsed_time)
