@@ -8,25 +8,25 @@
 
 ### Train
 
-1. CNN Network
+**1. CNN Network**
 
 ```bash
 python train.py -net 0
 ```
 
-2. Canny Edge Preprocessing + CNN + Residual Concept
+**2. Canny Edge Preprocessing + CNN + Residual Concept**
 
 ```bash
 python train.py -net 1
 ```
 
-3. Sobel Edge Preprocessing + CNN + Residual Concept
+**3. Sobel Edge Preprocessing + CNN + Residual Concept**
 
 ```bash
 python train.py -net 2
 ```
 
-4. Ensemble Network (1+2+3)
+**4. Ensemble Network (1+2+3)**
 
 ```bash
 python train.py -net 3 -model path/to/checkpoint/100-regular.pth -model2 path/to/checkpoint/100-regular.pth -model3 path/to/checkpoint/100-regular.pth
@@ -34,25 +34,25 @@ python train.py -net 3 -model path/to/checkpoint/100-regular.pth -model2 path/to
 
 ### Test
 
-1. CNN Network
+**1. CNN Network**
 
 ```bash
 python test.py -net 0 -weights path/to/checkpoint/100-regular.pth
 ```
 
-2. Canny Edge Preprocessing + CNN + Residual Concept
+**2. Canny Edge Preprocessing + CNN + Residual Concept**
 
 ```bash
 python test.py -net 1 -weights path/to/checkpoint/100-regular.pth
 ```
 
-3. Sobel Edge Preprocessing + CNN + Residual Concept
+**3. Sobel Edge Preprocessing + CNN + Residual Concept**
 
 ```bash
 python test.py -net 2 -weights path/to/checkpoint/100-regular.pth
 ```
 
-4. Ensemble Network (1+2+3)
+**4. Ensemble Network (1+2+3)**
 
 ```bash
 python test.py -net 3 -weights path/to/checkpoint/100-regular.pth -model path/to/checkpoint/100-regular.pth -model2 path/to/checkpoint/100-regular.pth -model3 path/to/checkpoint/100-regular.pth
