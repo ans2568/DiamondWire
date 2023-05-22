@@ -1,5 +1,8 @@
 # DiamondWire
 
+# Model Architecture
+
+![Ensemble](https://github.com/ans2568/DiamondWire/assets/80823431/b9072e02-481b-498e-9988-9ac57507de8c)
 
 # How to Usage
 
