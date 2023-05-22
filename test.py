@@ -7,6 +7,7 @@ of a model
 author baiyu
 """
 import os
+import sys
 import time
 import argparse
 
@@ -30,7 +31,20 @@ if __name__ == '__main__':
     parser.add_argument('-net', type=int, default=0, help='select network and dataset(0 ~ 3)')
     args = parser.parse_args()
     networks = [CNN(), CNN_Residual('canny'), CNN_Residual('sobel'), EnsembleNetwork()]
-    net = networks[args.net]
+    if args.net >= 0 and args.net < 3:
+        net = networks[args.net]
+    elif args.net == 3:
+        parser.add_argument('-model', type=str, required=True, help='the first model\'s weights file to train Ensemble')
+        parser.add_argument('-model2', type=str, required=True, help='the second model\'s weights file to train Ensemble')
+        parser.add_argument('-model3', type=str, required=True, help='the third model\'s weights file to train Ensemble')
+        net = EnsembleNetwork(args.model, args.model2, args.model3)
+    else:
+        print('Could not find Model. Please select model between 0 and 3')
+        print('-net 0 : CNN')
+        print('-net 1 : canny edge preprocessing + CNN + Residual concept')
+        print('-net 2 : sobel edge preprocessing + CNN + Residual concept')
+        print('-net 3 : Ensemble')
+        sys.exit(1)
     net = net.cuda()
 
     path = os.path.join('dataset', 'original_train_test_val', 'test')

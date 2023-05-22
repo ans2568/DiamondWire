@@ -35,5 +35,11 @@ class Ensemble(nn.Module):
         out = self.classifier(F.relu(out))
         return out
 
-def EnsembleNetwork():
-    return Ensemble(CNN(), CNN_Residual('canny'), CNN_Residual('sobel'))
+def EnsembleNetwork(weight_path, weight_path2, weight_path3):
+    modelA = CNN()
+    modelA.load_state_dict(torch.load(weight_path))
+    modelB = CNN_Residual('canny')
+    modelB.load_state_dict(torch.load(weight_path2))
+    modelC = CNN_Residual('sobel')
+    modelC.load_state_dict(torch.load(weight_path3))
+    return Ensemble(model=modelA, model2=modelB, model3=modelC)
