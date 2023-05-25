@@ -57,7 +57,8 @@ class Network(nn.Module):
             nn.Linear(in_features=512, out_features=256),
             nn.ReLU(),
             nn.Dropout(p=0.2),
-            nn.Linear(in_features=256, out_features=3)
+            nn.Linear(in_features=256, out_features=3),
+            nn.Softmax(dim=1)
         )
 
     def _make_layer(self, block, out_channels, num_blocks, stride):

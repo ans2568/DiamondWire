@@ -21,7 +21,8 @@ class Ensemble(nn.Module):
             nn.Linear(1024, 512),
 			nn.ReLU(),
 			nn.Dropout(p=0.2),
-            nn.Linear(512, num_classes)
+            nn.Linear(512, num_classes),
+            nn.Softmax(dim=1)
 		)
 
     def forward(self, x):

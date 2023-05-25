@@ -18,7 +18,8 @@ class Network(nn.Module):
             nn.Linear(in_features=64*213*100, out_features=256),
             nn.ReLU(),
             nn.Dropout(p=0.2),
-            nn.Linear(in_features=256, out_features=output)
+            nn.Linear(in_features=256, out_features=output),
+            nn.Softmax(dim=1)
         )
 
     def forward(self, x):
